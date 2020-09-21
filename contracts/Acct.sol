@@ -30,20 +30,34 @@ contract Acct is NFTOwnable {
     /**
      * @dev Withdraw asset.
      * @param _assetAddress Asset to be withdrawn.
-     *
-     * Ensures that any contract that inherits from this contract is able to
-     * withdraw funds that are accidentally received or stuck.
+     * @param amount Amount of asset to withdraw
      */
-    function withdraw(address _assetAddress) public onlyOwner {
+    function withdraw(address _assetAddress, uint256 amount) public onlyOwner {
+	bool isEther = (_assetAddress == ETHER);
         uint256 assetBalance;
-        if (_assetAddress == ETHER) {
+
+	// ascertain available balance
+        if (isEther) {
             address self = address(this); // workaround for a possible solidity bug
             assetBalance = self.balance;
-            msg.sender.transfer(assetBalance);
         } else {
             assetBalance = ERC20(_assetAddress).balanceOf(address(this));
-            ERC20(_assetAddress).safeTransfer(msg.sender, assetBalance);
         }
+
+	// handle withdraw-all
+	if (amount == uint256(-1)) {
+	    amount = assetBalance;
+	}
+	require(amount <= assetBalance, "Asset amount < Asset balance");
+
+	// transfer to owner
+	if (isEther) {
+            msg.sender.transfer(amount);
+	} else {
+            ERC20(_assetAddress).safeTransfer(msg.sender, amount);
+	}
+
+	// log activity
         emit LogWithdraw(msg.sender, _assetAddress, assetBalance);
     }
 }
