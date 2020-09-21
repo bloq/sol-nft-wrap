@@ -33,8 +33,3 @@ Bob purchases the NFT on the marketplace, ownership of the NFT transfers to Bob.
    ``` 
    truffle migrate --reset --network mainnet/ropsten
    ```
-5. Copy metFlash and ArbFinder address and set it in config/default.json
-6. Run bot. 
-   ```
-    $ node index.js
-    ```
