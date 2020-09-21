@@ -9,8 +9,16 @@ import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
 import './NFTOwnable.sol';
 
 /**
-    Ensures that any contract that inherits from this contract is able to
-    withdraw funds that are accidentally received or stuck.
+    Acct:  an abstract shell for ETH and ERC20 assets.
+
+    The intended use of Acct is to be filled with assets.   Those
+    assets may then be transferred to other owner(s), according to
+    owner-specified rules.
+
+    An Acct may be owned by an Ethereum EOA, a smart contract such as
+    Gnosis Safe, or an NFT such as the provided OwnerRegistry, which
+    uses a simple "token ID = contract address" mechanism via ERC721.
+
  */
 
 contract Acct is NFTOwnable {
@@ -22,6 +30,9 @@ contract Acct is NFTOwnable {
     /**
      * @dev Withdraw asset.
      * @param _assetAddress Asset to be withdrawn.
+     *
+     * Ensures that any contract that inherits from this contract is able to
+     * withdraw funds that are accidentally received or stuck.
      */
     function withdraw(address _assetAddress) public onlyOwner {
         uint256 assetBalance;
