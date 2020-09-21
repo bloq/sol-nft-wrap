@@ -7,15 +7,15 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './interfaces/INFTOwnable.sol';
 
 /**
-    Ensures that any contract that inherits from this contract is able to
-    withdraw funds that are accidentally received or stuck.
+     ERC721 registry for arbitrary contracts.
+
+     Each "token id" is the contract's address.
  */
 
 contract OwnerRegistry is ERC721("OwnerRegistry","NFTOWN") {
     function mint(address acct) external returns (bool) {
-	// quick ABI check
-	require(INFTOwnable(acct).NFTCanOwn() == true);
-	require(INFTOwnable(acct).owner() == msg.sender);
+	require(INFTOwnable(acct).NFTCanOwn() == true);		// quick ABI check
+	require(INFTOwnable(acct).owner() == msg.sender);	// make sure sender owns contract in question
 
 	// attempt to mint.  will fail if already minted.
 	_safeMint(msg.sender, uint256(acct));
