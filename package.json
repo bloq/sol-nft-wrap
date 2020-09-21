@@ -1,7 +1,7 @@
 {
-  "name": "nftwarp",
-  "version": "1.0.0",
-  "description": "nftwarp",
+  "name": "sol-nft-wrap",
+  "version": "0.1.0",
+  "description": "sol-nft-wrap",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
