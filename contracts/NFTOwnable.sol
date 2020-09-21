@@ -102,7 +102,7 @@ contract NFTOwnable is INFTOwnable, Context {
 	_nftOwnerRegistry = address(0);
     }
 
-    function transferOwnershipNft(address newRegistry) public onlyOwner {
+    function transferOwnershipNft(address newRegistry) public virtual onlyOwner {
         emit OwnershipTransferred(_msgSender(), _owner, _nftOwnerRegistry, true);
 	_owner = address(0);
 	_nftOwnerRegistry = newRegistry;
