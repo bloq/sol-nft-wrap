@@ -24,24 +24,17 @@ import './interfaces/IAcct.sol';
 
 contract Acct is NFTOwnable, IAcct {
     using SafeERC20 for ERC20;
-    address constant ETHER = address(0);
 
     /**
-     * @dev Withdraw asset.
-     * @param _assetAddress Asset to be withdrawn.
+     * @dev Withdraw ETH
      * @param amount Amount of asset to withdraw
      */
-    function withdraw(address _assetAddress, uint256 amount) external override onlyOwner {
-	bool isEther = (_assetAddress == ETHER);
+    function withdrawETH(uint256 amount) external override onlyOwner {
         uint256 assetBalance;
 
 	// ascertain available balance
-        if (isEther) {
-            address self = address(this); // workaround for a possible solidity bug
-            assetBalance = self.balance;
-        } else {
-            assetBalance = ERC20(_assetAddress).balanceOf(address(this));
-        }
+        address self = address(this); // workaround for a possible solidity bug
+        assetBalance = self.balance;
 
 	// handle withdraw-all
 	if (amount == uint256(-1)) {
@@ -50,11 +43,31 @@ contract Acct is NFTOwnable, IAcct {
 	require(amount <= assetBalance, "Asset amount < Asset balance");
 
 	// transfer to owner
-	if (isEther) {
-            msg.sender.transfer(amount);
-	} else {
-            ERC20(_assetAddress).safeTransfer(msg.sender, amount);
+        msg.sender.transfer(amount);
+
+	// log activity
+        emit LogWithdraw(msg.sender, address(0), assetBalance);
+    }
+
+    /**
+     * @dev Withdraw ERC20 asset.
+     * @param _assetAddress Asset to be withdrawn.
+     * @param amount Amount of asset to withdraw
+     */
+    function withdrawErc20(address _assetAddress, uint256 amount) external override onlyOwner {
+        uint256 assetBalance;
+
+	// ascertain available balance
+        assetBalance = ERC20(_assetAddress).balanceOf(address(this));
+
+	// handle withdraw-all
+	if (amount == uint256(-1)) {
+	    amount = assetBalance;
 	}
+	require(amount <= assetBalance, "Asset amount < Asset balance");
+
+	// transfer to owner
+        ERC20(_assetAddress).safeTransfer(msg.sender, amount);
 
 	// log activity
         emit LogWithdraw(msg.sender, _assetAddress, assetBalance);
