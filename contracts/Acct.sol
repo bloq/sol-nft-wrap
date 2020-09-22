@@ -7,6 +7,7 @@ import '@openzeppelin/contracts/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
 import './NFTOwnable.sol';
+import './interfaces/IAcct.sol';
 
 /**
     Acct:  an abstract shell for ETH and ERC20 assets.
@@ -21,18 +22,16 @@ import './NFTOwnable.sol';
 
  */
 
-contract Acct is NFTOwnable {
+contract Acct is NFTOwnable, IAcct {
     using SafeERC20 for ERC20;
     address constant ETHER = address(0);
-
-    event LogWithdraw(address indexed _from, address indexed _assetAddress, uint256 amount);
 
     /**
      * @dev Withdraw asset.
      * @param _assetAddress Asset to be withdrawn.
      * @param amount Amount of asset to withdraw
      */
-    function withdraw(address _assetAddress, uint256 amount) public onlyOwner {
+    function withdraw(address _assetAddress, uint256 amount) external override onlyOwner {
 	bool isEther = (_assetAddress == ETHER);
         uint256 assetBalance;
 
