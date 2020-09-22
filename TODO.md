@@ -4,7 +4,6 @@
 # Major features
 
 - [ ] Hold HFTs
-- [ ] Withdraw timelock
 - [ ] NFT lock
 
 # Minor updates and cleanups

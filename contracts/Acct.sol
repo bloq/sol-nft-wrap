@@ -24,28 +24,40 @@ import './interfaces/IAcct.sol';
 
 contract Acct is NFTOwnable, IAcct {
     using SafeERC20 for ERC20;
+    uint256 public unlockTime;
+
+    /**
+     * @dev Set unlock time
+     * @param newUnlockTime Absolute time at which contract is unlocked
+     */
+    function setUnlockTime(uint256 newUnlockTime) external override onlyOwner {
+        emit LogTimeLock(msg.sender, unlockTime, newUnlockTime);
+        unlockTime = newUnlockTime;
+    }
 
     /**
      * @dev Withdraw ETH
      * @param amount Amount of asset to withdraw
      */
     function withdrawETH(uint256 amount) external override onlyOwner {
+        require(block.timestamp >= unlockTime, "Withdraw is time-locked");
+
         uint256 assetBalance;
 
-	// ascertain available balance
+        // ascertain available balance
         address self = address(this); // workaround for a possible solidity bug
         assetBalance = self.balance;
 
-	// handle withdraw-all
-	if (amount == uint256(-1)) {
-	    amount = assetBalance;
-	}
-	require(amount <= assetBalance, "Asset amount < Asset balance");
+        // handle withdraw-all
+        if (amount == uint256(-1)) {
+            amount = assetBalance;
+        }
+        require(amount <= assetBalance, "Asset amount < Asset balance");
 
-	// transfer to owner
+        // transfer to owner
         msg.sender.transfer(amount);
 
-	// log activity
+        // log activity
         emit LogWithdraw(msg.sender, address(0), assetBalance);
     }
 
@@ -55,21 +67,23 @@ contract Acct is NFTOwnable, IAcct {
      * @param amount Amount of asset to withdraw
      */
     function withdrawErc20(address _assetAddress, uint256 amount) external override onlyOwner {
+        require(block.timestamp >= unlockTime, "Withdraw is time-locked");
+
         uint256 assetBalance;
 
-	// ascertain available balance
+        // ascertain available balance
         assetBalance = ERC20(_assetAddress).balanceOf(address(this));
 
-	// handle withdraw-all
-	if (amount == uint256(-1)) {
-	    amount = assetBalance;
-	}
-	require(amount <= assetBalance, "Asset amount < Asset balance");
+        // handle withdraw-all
+        if (amount == uint256(-1)) {
+            amount = assetBalance;
+        }
+        require(amount <= assetBalance, "Asset amount < Asset balance");
 
-	// transfer to owner
+        // transfer to owner
         ERC20(_assetAddress).safeTransfer(msg.sender, amount);
 
-	// log activity
+        // log activity
         emit LogWithdraw(msg.sender, _assetAddress, assetBalance);
     }
 }
