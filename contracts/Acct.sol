@@ -31,6 +31,7 @@ contract Acct is NFTOwnable, IAcct {
      * @param newUnlockTime Absolute time at which contract is unlocked
      */
     function setUnlockTime(uint256 newUnlockTime) external override onlyOwner {
+        require(block.timestamp >= unlockTime, "Contract is time-locked");
         emit LogTimeLock(msg.sender, unlockTime, newUnlockTime);
         unlockTime = newUnlockTime;
     }
