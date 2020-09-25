@@ -20,12 +20,28 @@ TBD:  Holding NFTs.
 
 ### C2:   OwnerRegistry, an ERC721 NFT registry for contracts
 
-OwnerRegistry is a standard ERC721 contract with 'NFTOWN' ticker symbol.
+OwnerRegistry is a standard ERC721 contract with 'OWNERS' ticker symbol.
 
 The Token-ID within this registry is the contract address of an Acct.
 
 Ownership of the assets within an Acct (or any other tracked contract) may then be transferred via normal
 ERC721 transfer mechanisms.
+
+## Features
+
+### NFT Lock
+
+If the "NFT Lock" is set, then withdrawals are disabled _when the Acct
+is owned by an NFT.  This is intended to freeze the Acct while listed on
+an NFT marketplace.  When ownership is transferred, the owner
+unregisters the Acct from the registry to access the assets.
+
+### Time Lock
+
+A non-revokable time lock can be applied to an Acct.  If the time lock's
+timestamp is in the future, when withdrawals are disabled.  When the
+timestamp is in the past, withdrawals are enabled (modulo other locks,
+such as the NFT lock, being unlocked also).
 
 ## User stories
 
