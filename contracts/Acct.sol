@@ -20,6 +20,15 @@ import './interfaces/IAcct.sol';
     Gnosis Safe, or an NFT such as the provided OwnerRegistry, which
     uses a simple "token ID = contract address" mechanism via ERC721.
 
+    Guarantees:
+    * If unlockTime is in the future, withdraw and set-lock-time are disabled
+    * Only the owner may withdraw or set-lock-time
+    * If the owner is set to EOA, that Ethereum EOA is the owner; NFT has
+      no access.
+    * If the owner is set to NFT, the owner listed in the ERC721 registry
+      is the owner; Ethereum EOA has no access.
+    * No other entities are permitted to withdraw.
+
  */
 
 contract Acct is NFTOwnable, IAcct {
