@@ -32,7 +32,7 @@ ERC721 transfer mechanisms.
 ### NFT Lock
 
 If the "NFT Lock" is set, then withdrawals are disabled _when the Acct
-is owned by an NFT.  This is intended to freeze the Acct while listed on
+is owned by an NFT_.  This is intended to freeze the Acct while listed on
 an NFT marketplace.  When ownership is transferred, the owner
 unregisters the Acct from the registry to access the assets.
 
