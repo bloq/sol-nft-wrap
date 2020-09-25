@@ -3,8 +3,7 @@
 
 # Major features
 
-- [ ] Hold HFTs
-- [ ] NFT lock
+- [ ] Hold NFTs
 
 # Minor updates and cleanups
 
