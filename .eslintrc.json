@@ -1,12 +1,16 @@
 {
-	"extends": "standard",
-	"globals": {
-		"artifacts": false,
-		"contract": false,
-		"beforeEach": false,
-		"before": false,
-		"it": false,
-		"web3": false,
-		"describe": false
-	}
+  "extends": "standard",
+  "globals": {
+    "artifacts": false,
+    "contract": false,
+    "beforeEach": false,
+    "before": false,
+    "it": false,
+    "web3": false,
+    "describe": false
+  },
+  "rules": {
+    "prefer-const": "error",
+    "semi": ["error", "never"]
+  }
 }

@@ -1,7 +1,3 @@
 { 
-  "provider": "https://eth.connect.bloq.cloud/v1/etc-labs",
-  // "provider": "http://127.0.0.1:8545",
-  "gasPrice": 35000000000,
-  "contracts": {
-  }
+  "provider": "https://eth.connect.bloq.cloud/v1/etc-labs"
 }
