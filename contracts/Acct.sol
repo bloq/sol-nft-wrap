@@ -1,13 +1,12 @@
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.6;
 
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
-import './NFTOwnable.sol';
-import './interfaces/IAcct.sol';
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "./NFTOwnable.sol";
+import "./interfaces/IAcct.sol";
 
 /**
     Acct:  an abstract shell for ETH and ERC20 assets.
@@ -47,7 +46,7 @@ contract Acct is NFTOwnable, IAcct {
      * @param newUnlockTime Absolute time at which contract is unlocked
      */
     function setUnlockTime(uint256 newUnlockTime) external override onlyOwner {
-	_checkLocks();
+        _checkLocks();
 
         emit LogTimeLock(msg.sender, unlockTime, newUnlockTime);
         unlockTime = newUnlockTime;
@@ -58,10 +57,10 @@ contract Acct is NFTOwnable, IAcct {
      * @param newLock New nftLock setting
      */
     function setNftLock(bool newLock) external override onlyOwner {
-	_checkLocks();
+        _checkLocks();
 
-	emit LogNftLock(msg.sender, nftLock, newLock);
-	nftLock = newLock;
+        emit LogNftLock(msg.sender, nftLock, newLock);
+        nftLock = newLock;
     }
 
     /**
@@ -69,7 +68,7 @@ contract Acct is NFTOwnable, IAcct {
      * @param amount Amount of asset to withdraw
      */
     function withdrawETH(uint256 amount) external override onlyOwner {
-	_checkLocks();
+        _checkLocks();
 
         uint256 assetBalance;
 
@@ -96,7 +95,7 @@ contract Acct is NFTOwnable, IAcct {
      * @param amount Amount of asset to withdraw
      */
     function withdrawErc20(address _assetAddress, uint256 amount) external override onlyOwner {
-	_checkLocks();
+        _checkLocks();
 
         uint256 assetBalance;
 
@@ -120,6 +119,6 @@ contract Acct is NFTOwnable, IAcct {
 
     function _checkLocks() internal view {
         require(block.timestamp >= unlockTime, "Contract is time-locked");
-	require(!nftLock || !_nftOwned(), "NFT locked");
+        require(!nftLock || !_nftOwned(), "NFT locked");
     }
 }

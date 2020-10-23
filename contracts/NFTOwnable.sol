@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.6.6;
 
-import '@openzeppelin/contracts/GSN/Context.sol';
-import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-import './interfaces/INFTOwnable.sol';
+import "@openzeppelin/contracts/GSN/Context.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./interfaces/INFTOwnable.sol";
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -27,7 +27,7 @@ contract NFTOwnable is INFTOwnable, Context {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () internal {
+    constructor() internal {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(_msgSender(), address(0), msgSender, false);
@@ -49,19 +49,19 @@ contract NFTOwnable is INFTOwnable, Context {
     }
 
     function _nftOwned() internal view returns (bool) {
-	return (_nftOwnerRegistry != address(0));
+        return (_nftOwnerRegistry != address(0));
     }
-    
+
     function nftOwned() external override view returns (bool) {
         return _nftOwned();
     }
 
     function _nftOwner() internal view returns (address) {
-	if (!_nftOwned()) {
-	    return address(0);
-	} else {
+        if (!_nftOwned()) {
+            return address(0);
+        } else {
             return IERC721(_nftOwnerRegistry).ownerOf(uint256(address(this)));
-	}
+        }
     }
 
     function nftOwner() external override view returns (address) {
@@ -72,9 +72,8 @@ contract NFTOwnable is INFTOwnable, Context {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-	bool isNftOwned = _nftOwned();
-        require((!isNftOwned && (_owner == _msgSender())) ||
-	        (isNftOwned && (_nftOwner() == _msgSender())), "NFTOwnable: caller is not the owner");
+        bool isNftOwned = _nftOwned();
+        require((!isNftOwned && (_owner == _msgSender())) || (isNftOwned && (_nftOwner() == _msgSender())), "NFTOwnable: caller is not the owner");
         _;
     }
 
@@ -88,7 +87,7 @@ contract NFTOwnable is INFTOwnable, Context {
     function renounceOwnership() public virtual onlyOwner {
         emit OwnershipTransferred(_msgSender(), _owner, address(0), false);
         _owner = address(0);
-	_nftOwnerRegistry = address(0);
+        _nftOwnerRegistry = address(0);
     }
 
     /**
@@ -99,13 +98,12 @@ contract NFTOwnable is INFTOwnable, Context {
         require(newOwner != address(0), "NFTOwnable: new owner is the zero address");
         emit OwnershipTransferred(_msgSender(), _owner, newOwner, false);
         _owner = newOwner;
-	_nftOwnerRegistry = address(0);
+        _nftOwnerRegistry = address(0);
     }
 
     function transferOwnershipNft(address newRegistry) public virtual onlyOwner {
         emit OwnershipTransferred(_msgSender(), _owner, _nftOwnerRegistry, true);
-	_owner = address(0);
-	_nftOwnerRegistry = newRegistry;
+        _owner = address(0);
+        _nftOwnerRegistry = newRegistry;
     }
-
 }
