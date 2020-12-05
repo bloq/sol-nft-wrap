@@ -7,51 +7,58 @@ ownership registry and transfer mechanism for abitrary contracts.
 
 ### C1:   Acct, an asset container
 
-Acct is a contract whose sole purpose is to hold assets, in order to transfer those
-assets between owners, possibly including ownership by an NFT marketplace.
+Acct is a contract whose sole purpose is to hold assets, in order to
+transfer those assets between owners, possibly including ownership
+by an NFT marketplace.
 
-Acct contract hold ERC20 tokens or ETH.  This on-chain account (aka wallet) may
-be owned by
-1. an owner address (EOA or another contract), or
-2. the owner of an NFT, whose unique NFT id is the contract address
-   owned by the NFT.
-   
+An Acct contract holds ERC20 tokens or ETH.  This on-chain account (aka
+on-chain wallet) may be owned by
+
+1. An owner address (EOA or another contract), or
+2. The NFT ownership registry contract.
+
 TBD:  Holding NFTs.
 
 ### C2:   OwnerRegistry, an ERC721 NFT registry for contracts
 
-OwnerRegistry is a standard ERC721 contract with 'OWNERS' ticker symbol.
+OwnerRegistry is a standard ERC721 contract with 'OWNER' ticker symbol.
 
 The Token-ID within this registry is the contract address of an Acct.
 
-Ownership of the assets within an Acct (or any other tracked contract) may then be transferred via normal
-ERC721 transfer mechanisms.
+Ownership of an Acct may be transferred to the registry.  The Acct
+may then be transferred via ERC721 standard means.
+
+Ownership is transferred from the registry to the NFT owner by burning
+the NFT.
 
 ## Features
 
 ### NFT Lock
 
-If the "NFT Lock" is set, then withdrawals are disabled _when the Acct
-is owned by an NFT_.  This is intended to freeze the Acct while listed on
-an NFT marketplace.  When ownership is transferred, the owner
-unregisters the Acct from the registry to access the assets.
+While an Acct is owned by the registry, assets cannot be withdrawn
+or transferred (unless prior approvals were granted).
 
 ### Time Lock
 
 A non-revokable time lock can be applied to an Acct.  If the time lock's
 timestamp is in the future, when withdrawals are disabled.  When the
-timestamp is in the past, withdrawals are enabled (modulo other locks,
-such as the NFT lock, being unlocked also).
+timestamp is in the past, withdrawals are enabled.
 
 ## User stories
 
 ### Asset package and transfer
 
-Alice provably locks us assets in a smart contract, and registers the contract with an ERC721-compatible registry.  Alice deposits the NFT on an NFT marketplace.
+Alice provably locks us assets in a smart contract, and registers the
+contract with an ERC721-compatible registry.  Alice deposits the NFT
+on an NFT marketplace.
 
-Bob examines the NFT on the marketplace, and inspects the assets associated with the NFT.
+Bob examines the NFT on the marketplace, and inspects the assets
+associated with the NFT.
 
-Bob purchases the NFT on the marketplace, ownership of the NFT transfers to Bob.   Bob may immediately withdraw any or all of the assets.  Alice cannot access the assets, following NFT ownership transfer.
+Bob purchases the NFT on the marketplace, ownership of the NFT
+transfers to Bob.  Bob unlocked the Acct by burning the NFT.  Bob may
+then immediately withdraw any or all of the assets.  Alice cannot
+access the assets, following NFT ownership transfer to Bob.
 
 ## Setup.
 1. Install packages
