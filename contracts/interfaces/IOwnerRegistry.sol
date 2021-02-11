@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.6;
+pragma solidity ^0.6.12;
 
 interface IOwnerRegistry {
-    function mint(address acct) external returns (bool);
+    function mintTo(address acct, address newOwner) external returns (bool);
 
     function burnTo(uint256 tokenId, address newOwner) external;
 }

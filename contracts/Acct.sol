@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.6;
+pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -35,16 +35,18 @@ contract Acct is Ownable, IAcct {
     }
 
     modifier isUnlocked() {
-        require(block.timestamp >= unlockTime, "Contract is time-locked");
+        require(block.timestamp >= unlockTime, "Acct: time-locked");
         _;
     }
+
+    receive() external payable {}
 
     /**
      * @dev Set unlock time
      * @param newUnlockTime Absolute time at which contract is unlocked
      */
     function setUnlockTime(uint256 newUnlockTime) external override onlyOwner isUnlocked {
-        emit LogTimeLock(msg.sender, unlockTime, newUnlockTime);
+        emit LogTimeLock(_msgSender(), unlockTime, newUnlockTime);
         unlockTime = newUnlockTime;
     }
 
@@ -52,8 +54,13 @@ contract Acct is Ownable, IAcct {
      * @dev Transfer ownership control to NFT registry
      */
     function transferOwnershipToNFT() external override onlyOwner {
-        IOwnerRegistry(REGISTRY_ADDR).mint(address(this));
-        transferOwnership(REGISTRY_ADDR);
+        transferOwnershipToNFT(REGISTRY_ADDR);
+    }
+
+    function transferOwnershipToNFT(address registry) public onlyOwner {
+        address originalOwner = owner();
+        transferOwnership(address(registry));
+        IOwnerRegistry(registry).mintTo(address(this), originalOwner);
     }
 
     /**
@@ -61,23 +68,23 @@ contract Acct is Ownable, IAcct {
      * @param amount Amount of asset to withdraw
      */
     function withdrawETH(uint256 amount) external override onlyOwner isUnlocked {
-        uint256 assetBalance;
-
         // ascertain available balance
         address self = address(this); // workaround for a possible solidity bug
-        assetBalance = self.balance;
+        uint256 assetBalance = self.balance;
 
         // handle withdraw-all
         if (amount == uint256(-1)) {
             amount = assetBalance;
         }
-        require(amount <= assetBalance, "Asset amount < Asset balance");
+        // the following line is not strictly necessary, the transfer would fail anyways
+        require(amount <= assetBalance, "Acct: transfer amount exceeds balance");
 
         // transfer to owner
-        msg.sender.transfer(amount);
+        address payable msgSender = _msgSender();
+        msgSender.transfer(amount);
 
         // log activity
-        emit LogWithdraw(msg.sender, address(0), assetBalance);
+        emit LogWithdraw(msgSender, address(0), amount);
     }
 
     /**
@@ -85,22 +92,22 @@ contract Acct is Ownable, IAcct {
      * @param _assetAddress Asset to be withdrawn.
      * @param amount Amount of asset to withdraw
      */
-    function withdrawErc20(address _assetAddress, uint256 amount) external override onlyOwner isUnlocked {
-        uint256 assetBalance;
-
+    function withdrawERC20(address _assetAddress, uint256 amount) external override onlyOwner isUnlocked {
         // ascertain available balance
-        assetBalance = ERC20(_assetAddress).balanceOf(address(this));
+        uint256 assetBalance = ERC20(_assetAddress).balanceOf(address(this));
 
         // handle withdraw-all
         if (amount == uint256(-1)) {
             amount = assetBalance;
         }
-        require(amount <= assetBalance, "Asset amount < Asset balance");
+        // the following line is unnecessary because ERC20 transfer would fail anyways
+        require(amount <= assetBalance, "Acct: transfer amount exceeds balance");
 
         // transfer to owner
-        ERC20(_assetAddress).safeTransfer(msg.sender, amount);
+        address msgSender = _msgSender();
+        ERC20(_assetAddress).safeTransfer(msgSender, amount);
 
         // log activity
-        emit LogWithdraw(msg.sender, _assetAddress, assetBalance);
+        emit LogWithdraw(msgSender, _assetAddress, amount);
     }
 }

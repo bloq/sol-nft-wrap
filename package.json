@@ -6,6 +6,11 @@
   "directories": {
     "test": "test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bloq/sol-nft-wrap.git "
+  },
+  "license": "MIT",
   "scripts": {
     "solhint": "solhint './contracts/**/*.sol'",
     "solhint:fix": "prettier --write 'contracts/**/*.sol'",
@@ -15,6 +20,7 @@
     "lint:fix": "eslint --fix ./test --ext .js"
   },
   "dependencies": {
+    "@openzeppelin/test-helpers": "^0.5.10",
     "bip39": "^3.0.2",
     "config": "^3.3.1",
     "hdkey": "^2.0.1"
