@@ -35,10 +35,12 @@ contract Acct is Ownable, IAcct {
     }
 
     modifier isUnlocked() {
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= unlockTime, "Acct: time-locked");
         _;
     }
 
+    // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
 
     /**
@@ -77,7 +79,7 @@ contract Acct is Ownable, IAcct {
             amount = assetBalance;
         }
         // the following line is not strictly necessary, the transfer would fail anyways
-        require(amount <= assetBalance, "Acct: transfer amount exceeds balance");
+        require(amount <= assetBalance, "Transfer amount exceeds balance");
 
         // transfer to owner
         address payable msgSender = _msgSender();
@@ -101,7 +103,7 @@ contract Acct is Ownable, IAcct {
             amount = assetBalance;
         }
         // the following line is unnecessary because ERC20 transfer would fail anyways
-        require(amount <= assetBalance, "Acct: transfer amount exceeds balance");
+        require(amount <= assetBalance, "Transfer amount exceeds balance");
 
         // transfer to owner
         address msgSender = _msgSender();

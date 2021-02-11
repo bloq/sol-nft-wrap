@@ -21,7 +21,7 @@ contract OwnerRegistry is ERC721("OwnerRegistry", "OWNER"), IOwnerRegistry {
         // Note also that this contract should not be made the owner of any Ownable
         // (other than tokens), otherwise attackers could call mintTo to first mint
         // the Ownable to themselves and then burn it to steal ownership!
-        require(IOwnable(ownable).owner() == address(this), "OwnerRegistry: owner is not the registry");
+        require(IOwnable(ownable).owner() == address(this), "Owner is not the registry");
 
         // attempt to mint.  will fail if already minted.
         // The provided address is cast to uint256,
@@ -32,7 +32,7 @@ contract OwnerRegistry is ERC721("OwnerRegistry", "OWNER"), IOwnerRegistry {
     }
 
     function burnTo(uint256 tokenId, address newOwner) external override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "OwnerRegistry: caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Caller is not owner nor approved");
         _burn(tokenId);
 
         IOwnable(address(tokenId)).transferOwnership(newOwner);

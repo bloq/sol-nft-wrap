@@ -9,15 +9,15 @@ contract AcctFactory is IAcctFactory {
     address[] private allAccts;
     mapping(address => bool) private isOurs;
 
-    function ours(address a) external override view returns (bool) {
+    function ours(address a) external view override returns (bool) {
         return isOurs[a];
     }
 
-    function acctCount() external override view returns (uint256) {
+    function acctCount() external view override returns (uint256) {
         return allAccts.length;
     }
 
-    function acctAt(uint256 idx) external override view returns (address) {
+    function acctAt(uint256 idx) external view override returns (address) {
         require(idx < allAccts.length, "Index exceeds list length");
         return allAccts[idx];
     }
