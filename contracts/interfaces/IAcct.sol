@@ -10,7 +10,11 @@ interface IAcct {
 
     function transferOwnershipToNFT() external;
 
+    function withdrawAllETH() external;
+
     function withdrawETH(uint256 amount) external;
+
+    function withdrawAllERC20(address _assetAddress) external;
 
     function withdrawERC20(address _assetAddress, uint256 amount) external;
 }

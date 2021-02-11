@@ -66,18 +66,33 @@ contract Acct is Ownable, IAcct {
     }
 
     /**
+     * @dev Withdraw all ETH
+     */
+    function withdrawAllETH() external override onlyOwner isUnlocked {
+        // ascertain available balance
+        address self = address(this); // workaround for a possible solidity bug
+        uint256 assetBalance = self.balance;
+        _withdrawETH(assetBalance);
+    }
+
+    /**
      * @dev Withdraw ETH
      * @param amount Amount of asset to withdraw
      */
     function withdrawETH(uint256 amount) external override onlyOwner isUnlocked {
+        _withdrawETH(amount);
+    }
+
+    /**
+     * @dev Withdraw ETH (internal)
+     * @param amount Amount of asset to withdraw
+     */
+    function _withdrawETH(uint256 amount) internal {
+        require(amount > 0, "Amount must be greater than zero");
         // ascertain available balance
         address self = address(this); // workaround for a possible solidity bug
         uint256 assetBalance = self.balance;
 
-        // handle withdraw-all
-        if (amount == uint256(-1)) {
-            amount = assetBalance;
-        }
         // the following line is not strictly necessary, the transfer would fail anyways
         require(amount <= assetBalance, "Transfer amount exceeds balance");
 
@@ -90,18 +105,34 @@ contract Acct is Ownable, IAcct {
     }
 
     /**
+     * @dev Withdraw the total balance of an ERC20 asset.
+     * @param _assetAddress Asset to be withdrawn.
+     */
+    function withdrawAllERC20(address _assetAddress) external override onlyOwner isUnlocked {
+        // ascertain available balance
+        uint256 assetBalance = ERC20(_assetAddress).balanceOf(address(this));
+        _withdrawERC20(_assetAddress, assetBalance);
+    }
+
+    /**
      * @dev Withdraw ERC20 asset.
      * @param _assetAddress Asset to be withdrawn.
      * @param amount Amount of asset to withdraw
      */
     function withdrawERC20(address _assetAddress, uint256 amount) external override onlyOwner isUnlocked {
+        _withdrawERC20(_assetAddress, amount);
+    }
+
+    /**
+     * @dev Withdraw ERC20 asset (internal).
+     * @param _assetAddress Asset to be withdrawn.
+     * @param amount Amount of asset to withdraw
+     */
+    function _withdrawERC20(address _assetAddress, uint256 amount) internal {
+        require(amount > 0, "Amount must be greater than zero");
         // ascertain available balance
         uint256 assetBalance = ERC20(_assetAddress).balanceOf(address(this));
 
-        // handle withdraw-all
-        if (amount == uint256(-1)) {
-            amount = assetBalance;
-        }
         // the following line is unnecessary because ERC20 transfer would fail anyways
         require(amount <= assetBalance, "Transfer amount exceeds balance");
 
