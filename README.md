@@ -1,6 +1,6 @@
 # sol-nft-wrap
 
-This set of smart contracts presents an account abtraction, and an ERC721 NFT as
+This set of smart contracts presents an account abstraction, and an ERC721 NFT as
 ownership registry and transfer mechanism for abitrary contracts.
 
 ## Components
@@ -48,7 +48,7 @@ timestamp is in the past, withdrawals are enabled.
 
 ### Asset package and transfer
 
-Alice provably locks us assets in a smart contract, and registers the
+Alice provably locks up assets in a smart contract, and registers the
 contract with an ERC721-compatible registry.  Alice deposits the NFT
 on an NFT marketplace.
 

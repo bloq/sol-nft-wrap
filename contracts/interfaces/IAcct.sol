@@ -8,7 +8,7 @@ interface IAcct {
 
     function setUnlockTime(uint256 newUnlockTime) external;
 
-    function transferOwnershipToNFT() external;
+    function transferOwnershipToNFT(address registry) external;
 
     function withdrawAllETH() external;
 

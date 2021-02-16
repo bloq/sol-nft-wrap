@@ -82,11 +82,11 @@ contract('Acct', async accounts => {
   })
 
   it('cannot withdraw ETH above balance', async () => {
-    await expectRevert(acct.withdrawETH(11), 'Transfer amount exceeds balance')
+    await expectRevert.unspecified(acct.withdrawETH(11))
   })
 
   it('cannot withdraw ERC20 above balance', async () => {
-    await expectRevert(acct.withdrawERC20(token.address, 1), 'Transfer amount exceeds balance')
+    await expectRevert(acct.withdrawERC20(token.address, 1), 'ERC20: transfer amount exceeds balance')
   })
 
   it('set unlock time emits LogTimeLock', async () => {

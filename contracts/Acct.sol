@@ -28,8 +28,6 @@ contract Acct is Ownable, IAcct {
 
     uint256 public unlockTime;
 
-    address private constant REGISTRY_ADDR = address(0x0);
-
     constructor(address owner) public {
         transferOwnership(owner);
     }
@@ -55,11 +53,7 @@ contract Acct is Ownable, IAcct {
     /**
      * @dev Transfer ownership control to NFT registry
      */
-    function transferOwnershipToNFT() external override onlyOwner {
-        transferOwnershipToNFT(REGISTRY_ADDR);
-    }
-
-    function transferOwnershipToNFT(address registry) public onlyOwner {
+    function transferOwnershipToNFT(address registry) external override onlyOwner {
         address originalOwner = owner();
         transferOwnership(address(registry));
         IOwnerRegistry(registry).mintTo(address(this), originalOwner);
@@ -89,12 +83,6 @@ contract Acct is Ownable, IAcct {
      */
     function _withdrawETH(uint256 amount) internal {
         require(amount > 0, "Amount must be greater than zero");
-        // ascertain available balance
-        address self = address(this); // workaround for a possible solidity bug
-        uint256 assetBalance = self.balance;
-
-        // the following line is not strictly necessary, the transfer would fail anyways
-        require(amount <= assetBalance, "Transfer amount exceeds balance");
 
         // transfer to owner
         address payable msgSender = _msgSender();
@@ -130,11 +118,6 @@ contract Acct is Ownable, IAcct {
      */
     function _withdrawERC20(address _assetAddress, uint256 amount) internal {
         require(amount > 0, "Amount must be greater than zero");
-        // ascertain available balance
-        uint256 assetBalance = ERC20(_assetAddress).balanceOf(address(this));
-
-        // the following line is unnecessary because ERC20 transfer would fail anyways
-        require(amount <= assetBalance, "Transfer amount exceeds balance");
 
         // transfer to owner
         address msgSender = _msgSender();
