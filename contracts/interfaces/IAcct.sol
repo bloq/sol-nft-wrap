@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.6;
+pragma solidity ^0.6.12;
 
 interface IAcct {
     event LogWithdraw(address indexed _from, address indexed _assetAddress, uint256 amount);
@@ -8,9 +8,13 @@ interface IAcct {
 
     function setUnlockTime(uint256 newUnlockTime) external;
 
-    function transferOwnershipToNFT() external;
+    function transferOwnershipToNFT(address registry) external;
+
+    function withdrawAllETH() external;
 
     function withdrawETH(uint256 amount) external;
 
-    function withdrawErc20(address _assetAddress, uint256 amount) external;
+    function withdrawAllERC20(address _assetAddress) external;
+
+    function withdrawERC20(address _assetAddress, uint256 amount) external;
 }
