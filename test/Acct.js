@@ -112,6 +112,16 @@ contract('Acct', async accounts => {
     expect(await registry.ownerOf(acct.address)).to.equal(owner)
   })
 
+  it('owner can transfer ownership back from registry', async () => {
+    await acct.transferOwnershipToNFT(registry.address, { from: owner })
+    expect(await acct.owner()).to.equal(registry.address)
+    expect(await registry.ownerOf(acct.address)).to.equal(owner)
+    expect(await registry.totalSupply()).to.be.bignumber.equal('1')
+    await registry.burnTo(acct.address, owner)
+    expect(await acct.owner()).to.equal(owner)
+    expect(await registry.totalSupply()).to.be.bignumber.equal('0')
+  })
+
   it('not owner cannot transfer ownership', async () => {
     await expectRevert(acct.transferOwnership(newOwner, { from: notOwner }), 'Ownable: caller is not the owner')
   })
@@ -199,11 +209,33 @@ contract('Acct', async accounts => {
       expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
     })
 
+    it('cannot accidentally accept the deposit of its Owning-NFT', async () => {
+      await acct.transferOwnershipToNFT(registry.address, { from: owner })
+      expect(await acct.owner()).to.equal(registry.address)
+      expect(await registry.ownerOf(acct.address)).to.equal(owner)
+      await expectRevert.unspecified(await registry.transferFrom(owner, acct.address, acct.address)) // the former is the address to approve, the latter will be cast to tokenId
+    })
+
+    it('can handle an unsafe nft deposit', async () => {
+      nft.transferFrom(owner, acct.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
+    })
+
     it('can withdraw an NFT', async () => {
       nft.approve(acct.address, 1)
       acct.depositERC721(nft.address, 1)
       expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
       expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      acct.withdrawERC721(nft.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('1')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('0')
+    })
+
+    it('can withdraw an unsafe nft deposit', async () => {
+      nft.transferFrom(owner, acct.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
       acct.withdrawERC721(nft.address, 1)
       expect(await nft.balanceOf(owner)).to.be.bignumber.equal('1')
       expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('0')
