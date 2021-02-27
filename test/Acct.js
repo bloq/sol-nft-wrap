@@ -2,6 +2,7 @@ const { expect } = require('chai')
 const Acct = artifacts.require('Acct')
 const OwnerRegistry = artifacts.require('OwnerRegistry')
 const ERC20Mock = artifacts.require('mocks/ERC20Mock')
+const ERC721Mock = artifacts.require('mocks/ERC721Mock')
 
 const { expectRevert, expectEvent, BN, time, balance } = require('@openzeppelin/test-helpers')
 
@@ -12,6 +13,7 @@ contract('Acct', async accounts => {
   let acct
   let registry
   let token
+  let nft
 
   beforeEach(async () => {
     acct = await Acct.new(owner)
@@ -110,6 +112,16 @@ contract('Acct', async accounts => {
     expect(await registry.ownerOf(acct.address)).to.equal(owner)
   })
 
+  it('owner can transfer ownership back from registry', async () => {
+    await acct.transferOwnershipToNFT(registry.address, { from: owner })
+    expect(await acct.owner()).to.equal(registry.address)
+    expect(await registry.ownerOf(acct.address)).to.equal(owner)
+    expect(await registry.totalSupply()).to.be.bignumber.equal('1')
+    await registry.burnTo(acct.address, owner)
+    expect(await acct.owner()).to.equal(owner)
+    expect(await registry.totalSupply()).to.be.bignumber.equal('0')
+  })
+
   it('not owner cannot transfer ownership', async () => {
     await expectRevert(acct.transferOwnership(newOwner, { from: notOwner }), 'Ownable: caller is not the owner')
   })
@@ -175,6 +187,70 @@ contract('Acct', async accounts => {
         const tx = await acct.setUnlockTime(newUnlockTime)
         await expectEvent(tx, 'LogTimeLock', { _from: owner, oldTime: new BN(unlockTime), newTime: new BN(newUnlockTime) })
       })
+    })
+  })
+  describe('ERC721 functionality', async () => {
+    let unlockTime
+    beforeEach(async () => {
+      // create an NFT
+      nft = await ERC721Mock.new('TestNifty', 'NFT', owner)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('1')
+      unlockTime = (await time.latest()).add(time.duration.weeks(2))
+    })
+
+    it('fails to deposit an NFT from an unapproved contract', async () => {
+      expectRevert.unspecified(acct.depositERC721(nft.address, 1))
+    })
+
+    it('can deposit an NFT from an approved contract', async () => {
+      nft.approve(acct.address, 1)
+      acct.depositERC721(nft.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
+    })
+
+    it('cannot accidentally accept the deposit of its Owning-NFT', async () => {
+      await acct.transferOwnershipToNFT(registry.address, { from: owner })
+      expect(await acct.owner()).to.equal(registry.address)
+      expect(await registry.ownerOf(acct.address)).to.equal(owner)
+      await expectRevert.unspecified(await registry.transferFrom(owner, acct.address, acct.address)) // the former is the address to approve, the latter will be cast to tokenId
+    })
+
+    it('can handle an unsafe nft deposit', async () => {
+      nft.transferFrom(owner, acct.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
+    })
+
+    it('can withdraw an NFT', async () => {
+      nft.approve(acct.address, 1)
+      acct.depositERC721(nft.address, 1)
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      acct.withdrawERC721(nft.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('1')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('0')
+    })
+
+    it('can withdraw an unsafe nft deposit', async () => {
+      nft.transferFrom(owner, acct.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('0')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('1')
+      acct.withdrawERC721(nft.address, 1)
+      expect(await nft.balanceOf(owner)).to.be.bignumber.equal('1')
+      expect(await nft.balanceOf(acct.address)).to.be.bignumber.equal('0')
+    })
+
+    it('withdrawNFT emits LogWithdrawNFT', async () => {
+      nft.approve(acct.address, 1)
+      acct.depositERC721(nft.address, 1)
+      const tx = await acct.withdrawERC721(nft.address, 1)
+      expectEvent(tx, 'LogWithdrawNFT', { _from: owner, _assetAddress: nft.address, tokenId: new BN(1) })
+    })
+
+    it('cannot withdraw an NFT when time-locked', async () => {
+      await acct.setUnlockTime(unlockTime)
+      await expectRevert(acct.withdrawERC721(nft.address, 1), 'Acct: time-locked')
     })
   })
 })

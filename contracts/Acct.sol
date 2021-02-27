@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Holder.sol";
 import "./interfaces/IAcct.sol";
 import "./interfaces/IOwnerRegistry.sol";
 
@@ -23,7 +25,7 @@ import "./interfaces/IOwnerRegistry.sol";
 
  */
 
-contract Acct is Ownable, IAcct {
+contract Acct is Ownable, IAcct, ERC721Holder {
     using SafeERC20 for ERC20;
 
     uint256 public unlockTime;
@@ -125,5 +127,28 @@ contract Acct is Ownable, IAcct {
 
         // log activity
         emit LogWithdraw(msgSender, _assetAddress, amount);
+    }
+
+    /**
+     * @dev Deposit ERC721 using safeTransferFrom.
+     * @param _tokenAddress NFT Contract to be deposited from.
+     * @param _tokenId the ID of the token to be deposited
+     */
+    function depositERC721(address _tokenAddress, uint256 _tokenId) external override {
+        address self = address(this);
+        address msgSender = _msgSender();
+        IERC721(_tokenAddress).safeTransferFrom(msgSender, self, _tokenId);
+    }
+
+    /**
+     * @dev Withdraw ERC721 using safeTransferFrom.
+     * @param _tokenAddress NFT Contract to be withdrawn from.
+     * @param _tokenId the ID of the token to be withdrawn
+     */
+    function withdrawERC721(address _tokenAddress, uint256 _tokenId) external override onlyOwner isUnlocked {
+        address self = address(this);
+        address msgSender = _msgSender();
+        IERC721(_tokenAddress).safeTransferFrom(self, msgSender, _tokenId);
+        emit LogWithdrawNFT(msgSender, _tokenAddress, _tokenId);
     }
 }

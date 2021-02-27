@@ -33,8 +33,7 @@ contract OwnerRegistry is ERC721("OwnerRegistry", "OWNER"), IOwnerRegistry {
 
     function burnTo(uint256 tokenId, address newOwner) external override {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Caller is not owner nor approved");
-        _burn(tokenId);
-
         IOwnable(address(tokenId)).transferOwnership(newOwner);
+        _burn(tokenId);
     }
 }
